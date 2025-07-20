@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ASC Atlantic - Site Dynamique</title>
+<style>
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0; padding: 0;
+    background: #f5f7fa;
+    color: #333;
+  }
+  header {
+    background: #004080;
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  header img {
+    height: 60px;
+    object-fit: contain;
+  }
+  header h1 {
+    font-size: 1.8rem;
+    margin: 0;
+    letter-spacing: 2px;
+  }
+  nav {
+    margin-left: auto;
+  }
+  nav button {
+    background: transparent;
+    border: 2px solid white;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    margin-left: 0.7rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  nav button:hover,
+  nav button.active {
+    background-color: white;
+    color: #004080;
+  }
+  main {
+    max-width: 1100px;
+    margin: 2rem auto 4rem auto;
+    padding: 0 1rem;
+  }
+  section {
+    display: none;
+    margin-bottom: 3rem;
+    background: white;
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
+  }
+  section.active {
+    display: block;
+  }
+  section h2 {
+    border-bottom: 3px solid #004080;
+    padding-bottom: 0.3rem;
+    margin-bottom: 1rem;
+    color: #004080;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+    gap: 1.5rem;
+  }
+  .card {
+    background: #e9f0fb;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 6px rgb(0 0 0 / 0.1);
+    transition: transform 0.2s ease;
+    position: relative;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgb(0 0 0 / 0.15);
+  }
+  .card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  .card-body {
+    padding: 1rem;
+  }
+  .card-body h3, .card-body h4 {
+    margin: 0 0 0.3rem 0;
+    color: #003366;
+  }
+  .card-body p {
+    margin: 0.2rem 0;
+  }
+  /* Boutons admin (modifier, supprimer) */
+  .admin-buttons {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 5px;
+    z-index: 10;
+  }
+  .admin-buttons button {
+    background-color: #004080;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+  }
+  .admin-buttons button:hover {
+    background-color: #002050;
+  }
+  /* Président */
+  .president {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: center;
+  }
+  .president img {
+    max-width: 220px;
+    border-radius: 50%;
+    border: 4px solid #004080;
+  }
+  .president-info {
+    flex: 1;
+    min-width: 250px;
+  }
+  /* Bureau */
+  .bureau-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  .bureau-card {
+    background: #e1e9f8;
+    border-radius: 8px;
+    padding: 1rem;
+    width: 200px;
+    text-align: center;
+    box-shadow: 0 1px 5px rgb(0 0 0 / 0.1);
+    transition: box-shadow 0.3s ease;
+    position: relative;
+  }
+  .bureau-card:hover {
+    box-shadow: 0 6px 15px rgb(0 0 0 / 0.2);
+  }
+  .bureau-card img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 0.8rem;
+    border: 3px solid #004080;
+  }
+  /* Formulaires admin */
+  form {
+    background: #eef5fd;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+    max-width: 400px;
+  }
+  form label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: bold;
+  }
+  form input, form select, form textarea {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+  }
+  form textarea {
+    resize: vertical;
+  }
+  form button {
+    background: #004080;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  form button:hover {
+    background: #003060;
+  }
+  footer {
+    background: #004080;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    font-size: 0.9rem;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+  }
+  @media(max-width:600px){
+    header {
+      flex-direction: column;
+      text-align: center;
+      gap: 0.5rem;
+    }
+    .president {
+      flex-direction: column;
+    }
+  }
+
+  /* Modal login admin */
+  #loginModal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+  }
+  #loginModal.active {
+    display: flex;
+  }
+  #loginModal .modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    max-width: 320px;
+    width: 90%;
+    text-align: center;
+  }
+  #loginModal input[type=password] {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  #loginModal button {
+    background-color: #004080;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  #loginModal button:hover {
+    background-color: #002050;
+  }
+
+  /* Bouton logout */
+  #logoutBtn {
+    background-color: #cc0000;
+    border-color: #cc0000;
+  }
+  #logoutBtn:hover {
+    background-color: #990000;
+    border-color: #990000;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img id="logo" src="Logo.jpg" alt="Logo ASC Atlantic" />
+  <h1>ASC Atlantic</h1>
+  <nav>
+    <button class="nav-btn active" data-target="transferts">Transferts</button>
+    <button class="nav-btn" data-target="joueurs">Joueurs</button>
+    <button class="nav-btn" data-target="president">Président</button>
+    <button class="nav-btn" data-target="bureau">Bureau</button>
+    <button id="adminBtn" style="margin-left:1rem;">Admin Login</button>
+    <button id="logoutBtn" style="display:none; margin-left:0.5rem;">Logout</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- TRANSFERTS -->
+  <section id="transferts" class="active">
+    <h2>Transferts Récents</h2>
+    <div class="grid-3" id="transferts-list"></div>
+
+    <!-- Formulaire ajout/modif transfert (admin) -->
+    <div id="adminFormContainerTransferts" style="display:none;">
+      <h3>Ajouter / Modifier un transfert</h3>
+      <form id="form-transfert">
+        <label for="nom">Nom joueur</label>
+        <input type="text" id="nom" required />
+        <label for="position">Position</label>
+        <select id="position" required>
+          <option value="" disabled selected>Choisir</option>
+          <option>Gardien</option>
+          <option>Défenseur</option>
+          <option>Milieu</option>
+          <option>Attaquant</option>
+        </select>
+        <label for="ancienClub">Ancien club</label>
+        <input type="text" id="ancienClub" required />
+        <label for="dateTransfert">Date de transfert</label>
+        <input type="month" id="dateTransfert" required />
+        <label for="imageUrl">URL image joueur</label>
+        <input type="url" id="imageUrl" placeholder="https://exemple.com/photo.jpg" required />
+        <button type="submit">Ajouter Transfert</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- JOUEURS -->
+  <section id="joueurs">
+    <h2>Joueurs de l'équipe</h2>
+    <div class="grid-3" id="joueurs-list"></div>
+
+    <!-- Formulaire ajout/modif joueur (admin) -->
+    <div id="adminFormContainerJoueurs" style="display:none;">
+      <h3>Ajouter / Modifier un joueur</h3>
+      <form id="form-joueur">
+        <label for="nomJoueur">Nom</label>
+        <input type="text" id="nomJoueur" required />
+        <label for="adresseJoueur">Adresse</label>
+        <input type="number" id="adresseJoueur" min="10" max="50" required />
+        <label for="positionJoueur">Position</label>
+        <input type="text" id="positionJoueur" required />
+        <label for="numeroJoueur">Numéro</label>
+        <input type="number" id="numeroJoueur" min="0" max="99" required />
+        <label for="imageJoueur">URL image joueur</label>
+        <input type="url" id="imageJoueur" placeholder="https://exemple.com/photo.jpg" required />
+        <button type="submit">Ajouter Joueur</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- PRESIDENT -->
+  <section id="president">
+    <h2>Président de l'équipe</h2>
+    <div class="president" id="president-container"></div>
+
+    <!-- Formulaire modification président (admin) -->
+    <div id="adminFormContainerPresident" style="display:none;">
+      <h3>Modifier le Président</h3>
+      <form id="form-president">
+        <label for="nomPresident">Nom</label>
+        <input type="text" id="nomPresident" required />
+        <label for="descPresident">Description</label>
+        <textarea id="descPresident" rows="4" required></textarea>
+        <label for="contactPresident">Contact (email)</label>
+        <input type="email" id="contactPresident" required />
+        <label for="imagePresident">URL image président</label>
+        <input type="url" id="imagePresident" placeholder="" required />
+        <button type="submit">Modifier Président</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- BUREAU -->
+  <section id="bureau">
+    <h2>Membres du Bureau</h2>
+    <div class="bureau-list" id="bureau-list"></div>
+
+    <!-- Formulaire ajout/modif membre bureau (admin) -->
+    <div id="adminFormContainerBureau" style="display:none;">
+      <h3>Ajouter / Modifier un membre du bureau</h3>
+      <form id="form-bureau">
+        <label for="nomBureau">Nom</label>
+        <input type="text" id="nomBureau" required />
+        <label for="roleBureau">Rôle</label>
+        <input type="text" id="roleBureau" required />
+        <label for="imageBureau">URL image membre</label>
+        <input type="url" id="imageBureau" placeholder="https://exemple.com/photo.jpg" required />
+        <button type="submit">Ajouter Membre</button>
+      </form>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  &copy; 2025 ASC Atlantic - Tous droits réservés
+</footer>
+
+<!-- Modal Login Admin -->
+<div id="loginModal">
+  <div class="modal-content">
+    <h2>Connexion Admin</h2>
+    <input type="password" id="adminPassword" placeholder="Mot de passe" />
+    <button id="loginSubmitBtn">Se connecter</button>
+  </div>
+</div>
+
+<script>
+  // Données initiales (peuvent être modifiées via localStorage)
+  const initialData = {
+    logo: "https://upload.wikimedia.org/wikipedia/commons/9/9d/Logo_ASC_Atlantic.png",
+    transferts: [
+      { nom: "", position: "Attaquant", ancienClub: "", dateTransfert: "2025-07", image: "" },
+      { nom: "", position: "Milieu", ancienClub: "", dateTransfert: "2025-08", image: "" },
+      { nom: "", position: "Défenseur", ancienClub: "", dateTransfert: "2025-06", image: "" }
+    ],
+    joueurs: [
+      { nom: "", age: 26, position: "Gardien", numero: 1, image: "" },
+      { nom: "", age: 24, position: "Attaquante", numero: 9, image: "" },
+      { nom: "", age: 29, position: "Milieu Défensif", numero: 6, image: "" }
+    ],
+    president: {
+      nom: "Cheikhou Gueye",
+      description: "Président de l'ASC Atlantic, passionné par le développement du football local et l'encadrement des jeunes talents. Il œuvre pour la croissance durable et la visibilité de l'équipe sur la scène nationale et internationale.",
+      contact: "cheikhou@ascatlantic.sn",
+      image: ""
+    },
+    bureau: [
+      { nom: "", role: "Secrétaire Générale", image: "" },
+      { nom: "", role: "Trésorier", image: "" },
+      { nom: "", role: "Responsable Communication", image: "" },
+      { nom: "", role: "Entraîneur", image: "" }
+    ]
+  };
+
+  // Mot de passe admin codé en dur (changer si besoin)
+  const ADMIN_PASSWORD = "Ibou@1267";
+
+  // Chargement des données depuis localStorage ou initialData
+  function loadData() {
+    const data = localStorage.getItem('ascAtlanticData');
+    return data ? JSON.parse(data) : initialData;
+  }
+  // Sauvegarder dans localStorage
+  function saveData(data) {
+    localStorage.setItem('ascAtlanticData', JSON.stringify(data));
+  }
+
+  // Variables globales
+  let isAdmin = false;
+  let data = loadData();
+
+  // Sélecteurs DOM importants
+  const navButtons = document.querySelectorAll('nav .nav-btn');
+  const sections = document.querySelectorAll('main section');
+  const loginModal = document.getElementById('loginModal');
+  const adminBtn = document.getElementById('adminBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  // Affichage onglet actif
+  navButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      navButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const target = btn.dataset.target;
+      sections.forEach(sec => {
+        sec.classList.toggle('active', sec.id === target);
+      });
+      // Cacher/montrer formulaire admin selon onglet
+      showAdminForm(target);
+    });
+  });
+
+  // Afficher/cacher formulaires admin selon onglet actif
+  function showAdminForm(sectionId) {
+    if (!isAdmin) {
+      // cacher tous les formulaires admin
+      hideAllAdminForms();
+      return;
+    }
+    hideAllAdminForms();
+    switch (sectionId) {
+      case "transferts":
+        document.getElementById('adminFormContainerTransferts').style.display = 'block';
+        break;
+      case "joueurs":
+        document.getElementById('adminFormContainerJoueurs').style.display = 'block';
+        break;
+      case "president":
+        document.getElementById('adminFormContainerPresident').style.display = 'block';
+        break;
+      case "bureau":
+        document.getElementById('adminFormContainerBureau').style.display = 'block';
+        break;
+    }
+  }
+  function hideAllAdminForms() {
+    document.getElementById('adminFormContainerTransferts').style.display = 'none';
+    document.getElementById('adminFormContainerJoueurs').style.display = 'none';
+    document.getElementById('adminFormContainerPresident').style.display = 'none';
+    document.getElementById('adminFormContainerBureau').style.display = 'none';
+  }
+
+  // Affichage initial des données
+  function renderAll() {
+    renderTransferts();
+    renderJoueurs();
+    renderPresident();
+    renderBureau();
+  }
+
+  // === TRANSFERTS ===
+  const transfertsList = document.getElementById('transferts-list');
+
+  function renderTransferts() {
+    transfertsList.innerHTML = '';
+    data.transferts.forEach((t, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${t.image}" alt="${t.nom}" />
+        <div class="card-body">
+          <h3>${t.nom}</h3>
+          <h4>${t.position}</h4>
+          <p><strong>Ancien club:</strong> ${t.ancienClub}</p>
+          <p><strong>Date:</strong> ${formatDateTransfert(t.dateTransfert)}</p>
+        </div>
+      `;
+      if (isAdmin) {
+        const adminBtns = document.createElement('div');
+        adminBtns.className = 'admin-buttons';
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Modifier';
+        editBtn.onclick = () => fillTransfertForm(i);
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Supprimer';
+        delBtn.onclick = () => {
+          if(confirm(`Supprimer le transfert de ${t.nom} ?`)){
+            data.transferts.splice(i,1);
+            saveData(data);
+            renderTransferts();
+          }
+        };
+        adminBtns.append(editBtn, delBtn);
+        card.appendChild(adminBtns);
+      }
+      transfertsList.appendChild(card);
+    });
+  }
+  function formatDateTransfert(dateStr){
+    if (!dateStr) return '';
+    const [year, month] = dateStr.split('-');
+    return month + '/' + year;
+  }
+
+  // Formulaire transfert (ajout/modif)
+  const formTransfert = document.getElementById('form-transfert');
+  let transfertEditIndex = null;
+  formTransfert.addEventListener('submit', e=>{
+    e.preventDefault();
+    const nom = document.getElementById('nom').value.trim();
+    const position = document.getElementById('position').value;
+    const ancienClub = document.getElementById('ancienClub').value.trim();
+    const dateTransfert = document.getElementById('dateTransfert').value;
+    const image = document.getElementById('imageUrl').value.trim();
+    if (transfertEditIndex === null) {
+      // ajout
+      data.transferts.push({nom, position, ancienClub, dateTransfert, image});
+    } else {
+      // modification
+      data.transferts[transfertEditIndex] = {nom, position, ancienClub, dateTransfert, image};
+      transfertEditIndex = null;
+      formTransfert.querySelector('button').textContent = "Ajouter Transfert";
+    }
+    saveData(data);
+    renderTransferts();
+    formTransfert.reset();
+  });
+
+  function fillTransfertForm(i){
+    const t = data.transferts[i];
+    document.getElementById('nom').value = t.nom;
+    document.getElementById('position').value = t.position;
+    document.getElementById('ancienClub').value = t.ancienClub;
+    document.getElementById('dateTransfert').value = t.dateTransfert;
+    document.getElementById('imageUrl').value = t.image;
+    transfertEditIndex = i;
+    formTransfert.querySelector('button').textContent = "Modifier Transfert";
+  }
+
+  // === JOUEURS ===
+  const joueursList = document.getElementById('joueurs-list');
+
+  function renderJoueurs() {
+    joueursList.innerHTML = '';
+    data.joueurs.forEach((j, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <img src="${j.image}" alt="${j.nom}" />
+        <div class="card-body">
+          <h3>${j.nom} (#${j.numero})</h3>
+          <h4>${j.position}</h4>
+          <p>Âge : ${j.age}</p>
+        </div>
+      `;
+      if (isAdmin) {
+        const adminBtns = document.createElement('div');
+        adminBtns.className = 'admin-buttons';
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Modifier';
+        editBtn.onclick = () => fillJoueurForm(i);
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Supprimer';
+        delBtn.onclick = () => {
+          if(confirm(`Supprimer le joueur ${j.nom} ?`)){
+            data.joueurs.splice(i,1);
+            saveData(data);
+            renderJoueurs();
+          }
+        };
+        adminBtns.append(editBtn, delBtn);
+        card.appendChild(adminBtns);
+      }
+      joueursList.appendChild(card);
+    });
+  }
+
+  // Formulaire joueur (ajout/modif)
+  const formJoueur = document.getElementById('form-joueur');
+  let joueurEditIndex = null;
+  formJoueur.addEventListener('submit', e=>{
+    e.preventDefault();
+    const nom = document.getElementById('nomJoueur').value.trim();
+    const age = parseInt(document.getElementById('ageJoueur').value);
+    const position = document.getElementById('positionJoueur').value.trim();
+    const numero = parseInt(document.getElementById('numeroJoueur').value);
+    const image = document.getElementById('imageJoueur').value.trim();
+    if (joueurEditIndex === null) {
+      data.joueurs.push({nom, age, position, numero, image});
+    } else {
+      data.joueurs[joueurEditIndex] = {nom, age, position, numero, image};
+      joueurEditIndex = null;
+      formJoueur.querySelector('button').textContent = "Ajouter Joueur";
+    }
+    saveData(data);
+    renderJoueurs();
+    formJoueur.reset();
+  });
+
+  function fillJoueurForm(i){
+    const j = data.joueurs[i];
+    document.getElementById('nomJoueur').value = j.nom;
+    document.getElementById('ageJoueur').value = j.age;
+    document.getElementById('positionJoueur').value = j.position;
+    document.getElementById('numeroJoueur').value = j.numero;
+    document.getElementById('imageJoueur').value = j.image;
+    joueurEditIndex = i;
+    formJoueur.querySelector('button').textContent = "Modifier Joueur";
+  }
+
+  // === PRESIDENT ===
+  const presidentContainer = document.getElementById('president-container');
+
+  function renderPresident(){
+    presidentContainer.innerHTML = `
+      <img src="${data.president.image}" alt="${data.president.nom}" />
+      <div class="president-info">
+        <h3>${data.president.nom}</h3>
+        <p>${data.president.description}</p>
+        <p><strong>Contact : </strong><a href="mailto:${data.president.contact}">${data.president.contact}</a></p>
+      </div>
+    `;
+  }
+
+  // Formulaire président (modification unique)
+  const formPresident = document.getElementById('form-president');
+  formPresident.addEventListener('submit', e=>{
+    e.preventDefault();
+    const nom = document.getElementById('nomPresident').value.trim();
+    const description = document.getElementById('descPresident').value.trim();
+    const contact = document.getElementById('contactPresident').value.trim();
+    const image = document.getElementById('imagePresident').value.trim();
+
+    data.president = {nom, description, contact, image};
+    saveData(data);
+    renderPresident();
+    alert("Président modifié avec succès !");
+  });
+
+  // Remplir formulaire président avec données courantes
+  function fillPresidentForm() {
+    document.getElementById('nomPresident').value = data.president.nom;
+    document.getElementById('descPresident').value = data.president.description;
+    document.getElementById('contactPresident').value = data.president.contact;
+    document.getElementById('imagePresident').value = data.president.image;
+  }
+
+  // === BUREAU ===
+  const bureauList = document.getElementById('bureau-list');
+
+  function renderBureau(){
+    bureauList.innerHTML = '';
+    data.bureau.forEach((m,i) => {
+      const card = document.createElement('div');
+      card.className = 'bureau-card';
+      card.innerHTML = `
+        <img src="${m.image}" alt="${m.nom}" />
+        <h3>${m.nom}</h3>
+        <p>${m.role}</p>
+      `;
+      if(isAdmin){
+        const adminBtns = document.createElement('div');
+        adminBtns.className = 'admin-buttons';
+        const editBtn = document.createElement('button');
+        editBtn.textContent = 'Modifier';
+        editBtn.onclick = () => fillBureauForm(i);
+        const delBtn = document.createElement('button');
+        delBtn.textContent = 'Supprimer';
+        delBtn.onclick = () => {
+          if(confirm(`Supprimer le membre ${m.nom} ?`)){
+            data.bureau.splice(i,1);
+            saveData(data);
+            renderBureau();
+          }
+        };
+        adminBtns.append(editBtn, delBtn);
+        card.appendChild(adminBtns);
+      }
+      bureauList.appendChild(card);
+    });
+  }
+
+  // Formulaire bureau (ajout/modif)
+  const formBureau = document.getElementById('form-bureau');
+  let bureauEditIndex = null;
+  formBureau.addEventListener('submit', e=>{
+    e.preventDefault();
+    const nom = document.getElementById('nomBureau').value.trim();
+    const role = document.getElementById('roleBureau').value.trim();
+    const image = document.getElementById('imageBureau').value.trim();
+    if(bureauEditIndex === null){
+      data.bureau.push({nom, role, image});
+    } else {
+      data.bureau[bureauEditIndex] = {nom, role, image};
+      bureauEditIndex = null;
+      formBureau.querySelector('button').textContent = "Ajouter Membre";
+    }
+    saveData(data);
+    renderBureau();
+    formBureau.reset();
+  });
+
+  function fillBureauForm(i){
+    const m = data.bureau[i];
+    document.getElementById('nomBureau').value = m.nom;
+    document.getElementById('roleBureau').value = m.role;
+    document.getElementById('imageBureau').value = m.image;
+    bureauEditIndex = i;
+    formBureau.querySelector('button').textContent = "Modifier Membre";
+  }
+
+  // === ADMIN LOGIN/LOGOUT ===
+  adminBtn.addEventListener('click', ()=>{
+    loginModal.classList.add('active');
+    document.getElementById('adminPassword').value = '';
+    document.getElementById('adminPassword').focus();
+  });
+
+  logoutBtn.addEventListener('click', ()=>{
+    isAdmin = false;
+    updateUIAdmin();
+  });
+
+  document.getElementById('loginSubmitBtn').addEventListener('click', ()=>{
+    const pw = document.getElementById('adminPassword').value;
+    if(pw === ADMIN_PASSWORD){
+      isAdmin = true;
+      loginModal.classList.remove('active');
+      updateUIAdmin();
+      alert("Connexion admin réussie !");
+    } else {
+      alert("Mot de passe incorrect !");
+    }
+  });
+
+  // Fermer modal si clic à l’extérieur du contenu
+  loginModal.addEventListener('click', e=>{
+    if(e.target === loginModal){
+      loginModal.classList.remove('active');
+    }
+  });
+
+  function updateUIAdmin(){
+    if(isAdmin){
+      adminBtn.style.display = 'none';
+      logoutBtn.style.display = 'inline-block';
+      // Afficher formulaires pour onglet actif
+      const activeSection = document.querySelector('section.active');
+      if(activeSection) showAdminForm(activeSection.id);
+    } else {
+      adminBtn.style.display = 'inline-block';
+      logoutBtn.style.display = 'none';
+      hideAllAdminForms();
+    }
+    renderAll();
+  }
+
+  // Initialisation
+  renderAll();
+
+  // Remplir formulaire président si admin au chargement
+  fillPresidentForm();
+
+</script>
+
+</body>
+</html>
